@@ -11,13 +11,13 @@ export function createBookElement(book: Book): HTMLDivElement {
     <p data-testid="bookItemYear">Tahun: ${book.year}</p>
     <div>
       <button data-testid="bookItemIsCompleteButton">
-        <i class="fas fa-check"></i> ${book.isComplete ? "Belum selesai dibaca" : "Selesai dibaca"}
+        <i class="fas fa-check"></i>
       </button>
       <button data-testid="bookItemDeleteButton">
-        <i class="fas fa-trash"></i> Hapus Buku
+        <i class="fas fa-trash"></i>
       </button>
       <button data-testid="bookItemEditButton">
-        <i class="fas fa-edit"></i> Edit Buku
+        <i class="fas fa-edit"></i>
       </button>
     </div>
   `;
@@ -26,6 +26,9 @@ export function createBookElement(book: Book): HTMLDivElement {
 }
 
 export function showEmptyMessage(element: HTMLElement, message: string): void {
+  if (element.children.length > 0) {
+    return;
+  }
   const emptyMessage = document.createElement("div");
   emptyMessage.style.textAlign = "center";
   emptyMessage.style.padding = "2rem";

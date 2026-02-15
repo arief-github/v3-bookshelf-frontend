@@ -19,8 +19,8 @@ function getFormElements<T>(form: HTMLFormElement): T {
 // Function to initialize the application
 export function initializeApp(): void {
   document.addEventListener("DOMContentLoaded", () => {
-    loadBooksFromStorage();
     setupEventListeners();
+    loadBooksFromStorage();
   });
 }
 
@@ -56,27 +56,35 @@ function setupEventListeners(): void {
   ) as HTMLButtonElement;
   closeModalButton.addEventListener("click", handleCloseModal);
 
-  const editBookForm = document.getElementById("editBookForm") as HTMLFormElement;
-  editBookForm.addEventListener("submit", handleEditBookFormSubmit);
+  const searchForm = document.getElementById("searchBook") as HTMLFormElement;
+  searchForm.addEventListener("submit", handleSearch);
 
-  const searchBookTitle = document.getElementById(
-    "searchBookTitle",
-  ) as HTMLInputElement;
-  searchBookTitle.addEventListener("input", handleSearch);
+  const editForm = document.getElementById("editBookForm") as HTMLFormElement;
+  editForm.addEventListener("submit", handleEditBook);
+  
+  window.addEventListener("storage", handleStorageChange);
 }
 
-// Handle new book submission
+// Handle changes to localStorage from other tabs
+function handleStorageChange(event: StorageEvent): void {
+  if (event.key === STORAGE_KEY) {
+    loadBooksFromStorage();
+  }
+}
+
+// Handle the book form submission
 function handleAddBook(event: Event): void {
   event.preventDefault();
   const form = event.target as HTMLFormElement;
-  const elements = getFormElements<BookFormElements>(form);
+  const { title, author, year, isComplete } =
+    getFormElements<BookFormElements>(form);
 
   const newBook: Book = {
-    id: Date.now(),
-    title: elements.bookFormTitle.value,
-    author: elements.bookFormAuthor.value,
-    year: parseInt(elements.bookFormYear.value, 10),
-    isComplete: elements.bookFormIsComplete.checked,
+    id: +new Date(),
+    title: title.value,
+    author: author.value,
+    year: Number(year.value),
+    isComplete: isComplete.checked,
   };
 
   books.push(newBook);
@@ -84,36 +92,46 @@ function handleAddBook(event: Event): void {
   form.reset();
 }
 
-// Handle "isComplete" checkbox change in the add book form
+// Update the label for the isComplete checkbox
 function handleIsCompleteCheckboxChange(event: Event): void {
-  const target = event.target as HTMLInputElement;
-  const submitSpan = document.querySelector(
-    "#bookFormSubmit span",
-  ) as HTMLSpanElement;
-  submitSpan.textContent = target.checked
-    ? "Selesai dibaca"
-    : "Belum selesai dibaca";
+  const checkbox = event.target as HTMLInputElement;
+  const label = document.querySelector(
+    'label[for="bookFormIsComplete"] span',
+  ) as HTMLElement;
+  label.textContent = checkbox.checked
+    ? "Finished reading"
+    : "Not finished yet";
 }
 
 // Render books to the DOM
 function renderBooks(): void {
-  renderBookList("incompleteBookList", (book) => !book.isComplete);
-  renderBookList("completeBookList", (book) => book.isComplete);
+  const incompleteBookList = document.getElementById(
+    "incompleteBookList",
+  ) as HTMLElement;
+  const completeBookList = document.getElementById(
+    "completeBookList",
+  ) as HTMLElement;
+
+  incompleteBookList.innerHTML = "";
+  completeBookList.innerHTML = "";
+
+  renderBookList(incompleteBookList, { isComplete: false });
+  renderBookList(completeBookList, { isComplete: true });
+
+  showEmptyMessage(
+    incompleteBookList,
+    "No books on the unfinished shelf yet",
+  );
+  showEmptyMessage(completeBookList, "No books on the finished shelf yet");
 }
 
 function renderBookList(
-  containerId: string,
-  filterCondition: BookFilterCondition,
+  container: HTMLElement,
+  filter: BookFilterCondition,
 ): void {
-  const container = document.getElementById(containerId) as HTMLElement;
-  container.innerHTML = "";
-  const filteredBooks = books.filter(filterCondition);
-
-  if (filteredBooks.length === 0) {
-    showEmptyMessage(container, "Tidak ada buku di rak ini.");
-    return;
-  }
-
+  const filteredBooks = books.filter(
+    (book) => book.isComplete === filter.isComplete,
+  );
   for (const book of filteredBooks) {
     const bookItem = createBookElement(book);
     container.append(bookItem);
@@ -145,24 +163,28 @@ function toggleBookCompletion(bookId: number): void {
   }
 }
 
+function deleteBook(bookId: number): void {
+  const bookIndex = books.findIndex((b) => b.id === bookId);
+  if (bookIndex > -1) {
+    books.splice(bookIndex, 1);
+    saveBooks();
+  }
+}
+
 function openEditModal(bookId: number): void {
   const book = books.find((b) => b.id === bookId);
-  if (book) {
-    const editBookForm = document.getElementById(
-      "editBookForm",
-    ) as HTMLFormElement;
-    const elements = getFormElements<EditFormElements>(editBookForm);
+  if (!book) return;
 
-    elements.editBookTitle.value = book.title;
-    elements.editBookAuthor.value = book.author;
-    elements.editBookYear.value = book.year.toString();
-    elements.editBookIsComplete.checked = book.isComplete;
+  const modal = document.getElementById("editModal") as HTMLElement;
+  const form = document.getElementById("editBookForm") as HTMLFormElement;
+  const { title, author, year } = getFormElements<EditFormElements>(form);
 
-    editBookForm.dataset.bookid = bookId.toString();
+  form.dataset.bookid = String(bookId);
+  title.value = book.title;
+  author.value = book.author;
+  year.value = String(book.year);
 
-    const modal = document.getElementById("editModal") as HTMLElement;
-    modal.classList.add("active");
-  }
+  modal.classList.add("active");
 }
 
 function handleCloseModal(): void {
@@ -170,86 +192,42 @@ function handleCloseModal(): void {
   modal.classList.remove("active");
 }
 
-function handleEditBookFormSubmit(event: Event): void {
+function handleEditBook(event: Event): void {
   event.preventDefault();
   const form = event.target as HTMLFormElement;
   const bookId = Number(form.dataset.bookid);
+  const { title, author, year } = getFormElements<EditFormElements>(form);
+
   const book = books.find((b) => b.id === bookId);
-
   if (book) {
-    const elements = getFormElements<EditFormElements>(form);
-
-    book.title = elements.editBookTitle.value;
-    book.author = elements.editBookAuthor.value;
-    book.year = Number(elements.editBookYear.value);
-    book.isComplete = elements.editBookIsComplete.checked;
-
+    book.title = title.value;
+    book.author = author.value;
+    book.year = Number(year.value);
     saveBooks();
-    handleCloseModal();
   }
+
+  handleCloseModal();
 }
 
-function deleteBook(bookId: number): void {
-  if (confirm("Apakah Anda yakin ingin menghapus buku ini?")) {
-    const bookIndex = books.findIndex((b) => b.id === bookId);
-    if (bookIndex !== -1) {
-      books.splice(bookIndex, 1);
-      saveBooks();
+function handleSearch(event: Event): void {
+  event.preventDefault();
+  const form = event.target as HTMLFormElement;
+  const { searchTitle } = getFormElements<{ searchTitle: HTMLInputElement }>(
+    form,
+  );
+  const query = searchTitle.value.toLowerCase();
+
+  const allBooks = document.querySelectorAll("[data-bookid]");
+  allBooks.forEach((bookElement) => {
+    const title = bookElement
+      .querySelector("h3")
+      ?.textContent?.toLowerCase() as string;
+    const bookItem = bookElement as HTMLElement;
+
+    if (title.includes(query)) {
+      bookItem.style.display = "";
+    } else {
+      bookItem.style.display = "none";
     }
-  }
-}
-
-function handleSearch(): void {
-  const searchInput = document.getElementById(
-    "searchBookTitle",
-  ) as HTMLInputElement;
-  const searchTerm = searchInput.value.toLowerCase();
-
-  const filteredBooks = searchTerm
-    ? books.filter((book) => book.title.toLowerCase().includes(searchTerm))
-    : books;
-
-  searchRender(
-    "incompleteBookList",
-    filteredBooks,
-    (book) => !book.isComplete,
-    searchTerm,
-  );
-  searchRender(
-    "completeBookList",
-    filteredBooks,
-    (book) => book.isComplete,
-    searchTerm,
-  );
-}
-
-function searchRender(
-  containerId: string,
-  allBooks: Book[],
-  filterCondition: BookFilterCondition,
-  searchTerm: string,
-) {
-  const container = document.getElementById(containerId) as HTMLElement;
-  container.innerHTML = "";
-  const booksToList = allBooks.filter(filterCondition);
-
-  if (books.length === 0) {
-    showEmptyMessage(container, "Tidak Ada Buku Tersedia");
-    return;
-  }
-
-  if (searchTerm && booksToList.length === 0) {
-    showEmptyMessage(container, "Buku Tidak Ditemukan");
-    return;
-  }
-
-  if (booksToList.length === 0) {
-    showEmptyMessage(container, "Tidak ada buku di rak ini.");
-    return;
-  }
-
-  for (const book of booksToList) {
-    const bookItem = createBookElement(book);
-    container.append(bookItem);
-  }
+  });
 }

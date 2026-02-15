@@ -9,18 +9,19 @@ export interface Book {
 
 // DOM Element type helpers
 export type BookFormElements = {
-  bookFormTitle: HTMLInputElement;
-  bookFormAuthor: HTMLInputElement;
-  bookFormYear: HTMLInputElement;
-  bookFormIsComplete: HTMLInputElement;
+  title: HTMLInputElement;
+  author: HTMLInputElement;
+  year: HTMLInputElement;
+  isComplete: HTMLInputElement;
 };
 
 export type EditFormElements = {
-  editBookTitle: HTMLInputElement;
-  editBookAuthor: HTMLInputElement;
-  editBookYear: HTMLInputElement;
-  editBookIsComplete: HTMLInputElement;
+  title: HTMLInputElement;
+  author: HTMLInputElement;
+  year: HTMLInputElement;
 };
 
-// Event handler type definitions
-export type BookFilterCondition = (book: Book) => boolean;
+// Book filter condition
+export type BookFilterCondition = {
+  isComplete: boolean;
+};
