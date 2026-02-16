@@ -8,7 +8,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rimraf dist",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "test": "jest"
   },
   "keywords": [
     "typescript",
@@ -18,7 +19,11 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "rimraf": "^5.0.0"
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.0.0"
   }
 }

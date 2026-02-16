@@ -166,8 +166,10 @@ function toggleBookCompletion(bookId: number): void {
 function deleteBook(bookId: number): void {
   const bookIndex = books.findIndex((b) => b.id === bookId);
   if (bookIndex > -1) {
-    books.splice(bookIndex, 1);
-    saveBooks();
+    if (window.confirm("Are you sure you want to delete this book?")) {
+      books.splice(bookIndex, 1);
+      saveBooks();
+    }
   }
 }
 
