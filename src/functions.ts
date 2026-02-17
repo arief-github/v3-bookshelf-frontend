@@ -3,7 +3,6 @@ import {
   Book,
   BookFilterCondition,
   BookFormElements,
-  EditFormElements,
 } from "./types.js";
 
 const STORAGE_KEY = "BOOKSHELF_APPS";
@@ -95,12 +94,14 @@ function handleAddBook(event: Event): void {
 // Update the label for the isComplete checkbox
 function handleIsCompleteCheckboxChange(event: Event): void {
   const checkbox = event.target as HTMLInputElement;
-  const label = document.querySelector(
-    'label[for="bookFormIsComplete"] span',
+  const buttonSpan = document.querySelector(
+    '#bookFormSubmit span',
   ) as HTMLElement;
-  label.textContent = checkbox.checked
-    ? "Finished reading"
-    : "Not finished yet";
+  if (buttonSpan) {
+    buttonSpan.textContent = checkbox.checked
+      ? "Selesai dibaca"
+      : "Belum selesai dibaca";
+  }
 }
 
 // Render books to the DOM
@@ -179,12 +180,13 @@ function openEditModal(bookId: number): void {
 
   const modal = document.getElementById("editModal") as HTMLElement;
   const form = document.getElementById("editBookForm") as HTMLFormElement;
-  const { title, author, year } = getFormElements<EditFormElements>(form);
+  const { title, author, year, isComplete } = getFormElements<BookFormElements>(form);
 
   form.dataset.bookid = String(bookId);
   title.value = book.title;
   author.value = book.author;
   year.value = String(book.year);
+  isComplete.checked = book.isComplete;
 
   modal.classList.add("active");
 }
@@ -198,13 +200,14 @@ function handleEditBook(event: Event): void {
   event.preventDefault();
   const form = event.target as HTMLFormElement;
   const bookId = Number(form.dataset.bookid);
-  const { title, author, year } = getFormElements<EditFormElements>(form);
+  const { title, author, year, isComplete } = getFormElements<BookFormElements>(form);
 
   const book = books.find((b) => b.id === bookId);
   if (book) {
     book.title = title.value;
     book.author = author.value;
     book.year = Number(year.value);
+    book.isComplete = isComplete.checked;
     saveBooks();
   }
 

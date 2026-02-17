@@ -11,7 +11,7 @@ export function createBookElement(book: Book): HTMLDivElement {
     <p data-testid="bookItemYear">Tahun: ${book.year}</p>
     <div>
       <button data-testid="bookItemIsCompleteButton">
-        <i class="fas fa-check"></i>
+        ${book.isComplete ? '<i class="fas fa-arrow-left"></i>' : '<i class="fas fa-check"></i>'}
       </button>
       <button data-testid="bookItemDeleteButton">
         <i class="fas fa-trash"></i>

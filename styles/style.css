@@ -212,6 +212,13 @@ button:hover {
   color: var(--md-sys-color-on-secondary-container);
 }
 
+/* Checkbox Checklist */
+.check-book {
+  display: flex; 
+  gap: 8px; 
+  align-items: baseline;
+}
+
 /* Search Component */
 .search-container {
   max-width: 600px;

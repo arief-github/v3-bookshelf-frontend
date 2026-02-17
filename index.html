@@ -49,6 +49,7 @@
               type="text"
               required
               data-testid="bookFormTitleInput"
+              name="title"
             />
           </div>
           <div>
@@ -58,6 +59,7 @@
               type="text"
               required
               data-testid="bookFormAuthorInput"
+              name="author"
             />
           </div>
           <div>
@@ -67,13 +69,15 @@
               type="number"
               required
               data-testid="bookFormYearInput"
+              name="year"
             />
           </div>
-          <div style="display: flex; gap: var(--spacing-2); align-items: baseline;">
+          <div class="check-book">
             <input
               id="bookFormIsComplete"
               type="checkbox"
               data-testid="bookFormIsCompleteCheckbox"
+              name="isComplete"
             />
             <label for="bookFormIsComplete">Selesai dibaca</label>
           </div>
@@ -82,8 +86,7 @@
             type="submit"
             data-testid="bookFormSubmitButton"
           >
-            <i class="fas fa-book"></i> Masukkan Buku ke rak
-            <span>Belum selesai dibaca</span>
+            <i class="fas fa-book"></i> Submit
           </button>
         </form>
       </section>
@@ -117,6 +120,7 @@
               type="text"
               required
               data-testid="editBookTitleInput"
+              name="title"
             />
           </div>
           <div>
@@ -126,6 +130,7 @@
               type="text"
               required
               data-testid="editBookAuthorInput"
+              name="author"
             />
           </div>
           <div>
@@ -135,15 +140,17 @@
               type="number"
               required
               data-testid="editBookYearInput"
+              name="year"
             />
           </div>
-          <div>
-            <label for="editBookIsComplete">Selesai dibaca</label>
+          <div class="check-book">
             <input
               id="editBookIsComplete"
               type="checkbox"
               data-testid="editBookIsCompleteCheckbox"
+              name="isComplete"
             />
+            <label for="editBookIsComplete">Selesai dibaca</label>
           </div>
           <div class="modal-buttons">
             <button type="submit" data-testid="editBookFormSubmitButton" title="Simpan Perubahan Data">

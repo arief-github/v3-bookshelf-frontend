@@ -17,8 +17,9 @@
     "declaration": true,
     "outDir": "./dist",
     "sourceMap": true,
-    "removeComments": true
+    "removeComments": true,
+    "rootDir": "./src"
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
